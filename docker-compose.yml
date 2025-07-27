@@ -1,0 +1,35 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cv
+    ports:
+      - "3306:3306"
+    networks:
+      - app_network
+    volumes:
+      - mysql_data:/var/lib/mysql  
+  streamlit:
+    build: .
+    container_name: streamlit_app
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DB: cv
+    ports:
+      - "8501:8501"
+    networks:
+      - app_network
+    depends_on:
+      - mysql
+    entrypoint: ["streamlit", "run", "app.py", "--server.port=8501", "--server.enableCORS=false"]
+networks:
+  app_network:
+    driver: bridge
+volumes:
+  mysql_data:
